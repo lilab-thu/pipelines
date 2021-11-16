@@ -1,0 +1,8 @@
+genome: mm10
+sample:
+    - TT1
+    - TT6
+input:
+    /NAS392047/database_new/inhouse/hewei_seq210527_lh/RNA_fastq
+output:
+    atac_output_test
