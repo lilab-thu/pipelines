@@ -8,7 +8,7 @@ import random
 ## parameter initialization
 if GENOME_VERSION=="hg38":
   GENOME_INDEX='/conglilab/shared/genomics/pipeline_atac/hg38/bowtie2_index/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta'
-  GENOME_BLACKLIST='/conglilab/shared/genomics/pipeline_atac/hg38/hg38.GENOME_BLACKLIST.withJDB.sorted.bed'
+  GENOME_BLACKLIST='/conglilab/shared/genomics/pipeline_atac/hg38/hg38.blacklist.withJDB.sorted.bed'
   CHROM_FILTER_1='v'
   CHROM_FILTER_2='V'
   TSS_BED='/conglilab/shared/genomics/human/GRCh38_2019/Annotations/GRCh38_gencode.v32/main/hg38.v32.pc.lv12.tss.bed.gz'
@@ -17,7 +17,7 @@ if GENOME_VERSION=="hg38":
   MACS2_GENOME_SIZE="hs"
 elif GENOME_VERSION=="mm10":
   GENOME_INDEX='/conglilab/shared/genomics/pipeline_atac/mm10/bowtie2_index/mm10_no_alt_analysis_set_ENCODE.fasta'
-  GENOME_BLACKLIST='/conglilab/shared/genomics/pipeline_atac/mm10/mm10.GENOME_BLACKLIST.withJDB.sorted.bed'
+  GENOME_BLACKLIST='/conglilab/shared/genomics/pipeline_atac/mm10/mm10.blacklist.withJDB.sorted.bed'
   CHROM_FILTER_1='random'
   CHROM_FILTER_2='chrUn'
   TSS_BED='/conglilab/shared/genomics/mouse/GRCm38_2019/Annotations/GRCm38_gencode.m23/main/mm10.vM23.pc.lv12.tss.bed.gz'
@@ -142,7 +142,7 @@ rule filter_1:
   input:
     bam=rules.bowtie2.output.bam
   output:
-    bam=temp(OUT+"/bam/intermediate/{sample}.CHROM_FILTER_1.bam")
+    bam=temp(OUT+"/bam/intermediate/{sample}.filter_1.bam")
   threads: 8
   conda: "envs/conda.yaml"
   shell: """
@@ -160,7 +160,7 @@ rule filter_2:
     bam=rules.filter_1.output.bam
   output:
     fixmate=temp(OUT+"/bam/intermediate/{sample}.fixmate.bam"),
-    bam=temp(OUT+"/bam/intermediate/{sample}.CHROM_FILTER_2.bam")
+    bam=temp(OUT+"/bam/intermediate/{sample}.filter_2.bam")
   threads:8
   conda: "envs/conda.yaml"
   shell: """
@@ -227,7 +227,7 @@ rule mask_blacklist_region:
   ## add one more step to filter GENOME_BLACKLIST
   bedtools intersect -v -abam {input.bam} -b {params.GENOME_BLACKLIST} |\
   samtools view -F 1804 -f 2 -@ {threads} -S -h -b |\
-  samtools sort -@ {threads} -m 2G  /dev/stdin -o  {output.bam}
+  samtools sort -@ {threads} -m 2G /dev/stdin -o  {output.bam}
   
   samtools index -@ {threads} {output.bam}
   """
@@ -330,10 +330,10 @@ rule atacSummary:
   Reads_n=$(printf "%.0f\\n" `echo "${{Reads}}*${{Align_d}}-${{Reads_m}}" |bc`)
   dup_r=$(echo "scale=4;1-${{Frag}}/(${{Reads}}*${{Align_d}})" |bc )
   genomic_dup_r=$(echo "scale=4;(${{Reads_n}}-${{Frag_n}})/${{Reads_n}}" |bc )
-echo "other stat ok"
-  echo -e {wildcards.sample}","${{Reads}}","${{Reads_m}}","${{Reads_m_r}}","${{Reads_n}}","${{Frag}}","${{Frag_m}}","${{Frag_m_r}}","${{Frag_n}}","${{Align}}","${{dup_r}}","${{genomic_dup_r}}" \
+  echo "other stat ok"
+  echo -e {wildcards.sample}","${{Reads}}","${{Reads_m}}","${{Reads_m_r}}","${{Reads_n}}","${{Frag}}","${{Frag_m}}","${{Frag_m_r}}","${{Frag_n}}","${{Align}}","${{dup_r}}","${{genomic_dup_r}} \
   >> {output.summary}
-echo "final echo ok"
+  echo "final echo ok"
   """
 
 rule summaryConcat:
