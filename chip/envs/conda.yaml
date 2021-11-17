@@ -1,0 +1,14 @@
+channels:
+  - main
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - snakemake-minimal
+  - cutadapt=3.5
+  - bowtie2=2.4.4
+  - picard=2.26.5
+  - samtools=1.14
+  - bedtools=2.30.0
+  - deeptools=3.5.1
+  - r-base=4.0.5
