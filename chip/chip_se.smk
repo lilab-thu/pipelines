@@ -37,7 +37,7 @@ rule all:
         expand(OUT + "/qc/fastqc/{sample}", sample=SAMPLE_LIST),
 
 
-rule detectAdapter:
+checkpoint detectAdapter:
     input:
         fq1=IN + "/{sample}.fastq.gz",
     output:
@@ -98,9 +98,26 @@ rule fastqc:
         """
 
 
+def cut_if_adapter(wildcards):
+    r1_adap = checkpoints.detectAdapter.get(sample=wildcards.sample).output[0]
+    r1_adap = (
+        subprocess.check_output(f"cat {r1_adap} | sed -n 9p | cut -f 3", shell=True)
+        .decode("utf-8")
+        .strip()
+    )
+    if r1_adap == "":
+        return {
+            "fq1": IN + "/{sample}_R1.fastq.gz",
+        }
+    else:
+        return {
+            "fq1": OUT + "/fastq/{sample}_R1.trimmed.fastq.gz",
+        }
+
+
 rule bowtie2:
     input:
-        fq1=rules.cutAdapter.output.fq1,
+        unpack(cut_if_adapter),
     output:
         bam=OUT + "/bam/intermediate/{sample}.bam",
         bai=OUT + "/bam/intermediate/{sample}.bam.bai",
