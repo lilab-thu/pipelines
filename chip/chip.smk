@@ -95,12 +95,12 @@ rule cutAdapter:
 def cut_if_adapter(wildcards):
   r1_adap=checkpoints.detectAdapter.get(sample=wildcards.sample).output[0]
   r2_adap=checkpoints.detectAdapter.get(sample=wildcards.sample).output[1]
-  r1_adap = subprocess.checkoutput(f"cat {r1_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
-  r2_adap = subprocess.checkoutput(f"cat {r2_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
-  if any(r1_adap=="", r2_adap==""):
-    return { "fq1":IN+"{sample}_R1.fastq.gz" , "fq2":IN+"{sample}_R2.fastq.gz"}
+  r1_adap = subprocess.check_output(f"cat {r1_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
+  r2_adap = subprocess.check_output(f"cat {r2_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
+  if any([r1_adap=="", r2_adap==""]):
+    return { "fq1":IN+"/{sample}_R1.fastq.gz" , "fq2":IN+"/{sample}_R2.fastq.gz"}
   else:
-    return {  "fq1":OUT+"/fastq/{sample}_R1.fastq.gz" ,"fq2": OUT+"/fastq/{sample}_R2.fastq.gz" }
+    return {  "fq1":OUT+"/fastq/{sample}_R1.trimmed.fastq.gz" ,"fq2": OUT+"/fastq/{sample}_R2.trimmed.fastq.gz" }
 
 rule fastqc:
   input:
