@@ -4,6 +4,7 @@ OUT=config["output"]
 IN=config["input"]
 
 import random
+import subprocess
 
 ## parameter initialization
 if GENOME_VERSION=="hg38":
@@ -41,7 +42,7 @@ rule all:
     expand(OUT+"/qc/fastqc/{sample}",sample=SAMPLE_LIST),
 
 
-rule detectAdapter:
+checkpoint detectAdapter:
   input:
     fq1=IN+"/{sample}_R1.fastq.gz",
     fq2=IN+"/{sample}_R2.fastq.gz",
@@ -91,6 +92,16 @@ rule cutAdapter:
     > {output.report}
     """
 
+def cut_if_adapter(wildcards):
+  r1_adap=checkpoints.detectAdapter.get(sample=wildcards.sample).output[0]
+  r2_adap=checkpoints.detectAdapter.get(sample=wildcards.sample).output[1]
+  r1_adap = subprocess.checkoutput(f"cat {r1_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
+  r2_adap = subprocess.checkoutput(f"cat {r2_adap} | sed -n 9p | cut -f 3", shell=True).decode("utf-8").strip()
+  if any(r1_adap=="", r2_adap==""):
+    return { "fq1":IN+"{sample}_R1.fastq.gz" , "fq2":IN+"{sample}_R2.fastq.gz"}
+  else:
+    return {  "fq1":OUT+"/fastq/{sample}_R1.fastq.gz" ,"fq2": OUT+"/fastq/{sample}_R2.fastq.gz" }
+
 rule fastqc:
   input:
     fq1=IN+"/{sample}_R1.fastq.gz",
@@ -111,8 +122,7 @@ rule fastqc:
 
 rule bowtie2:
   input:
-    fq1=rules.cutAdapter.output.fq1,
-    fq2=rules.cutAdapter.output.fq2
+    unpack(cut_if_adapter)
   output:
     bam=OUT+"/bam/intermediate/{sample}.bam",
     bai=OUT+"/bam/intermediate/{sample}.bam.bai"
