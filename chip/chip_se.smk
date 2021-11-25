@@ -107,7 +107,7 @@ def cut_if_adapter(wildcards):
     )
     if r1_adap == "":
         return {
-            "fq1": IN + "/{sample}_R1.fastq.gz",
+            "fq1": IN + "/{sample}.fastq.gz",
         }
     else:
         return {
