@@ -136,8 +136,7 @@ rule fastqc:
 # so i devided it 
 rule rrna:
   input:
-    fq1=rules.cutAdapter.output.fq1,
-    fq2=rules.cutAdapter.output.fq2,
+    unpack(cut_if_adapter)
   output:
     countResult=OUT+"/qc/RRNA/{sample}/rRNA.sam.frag_count"
   threads: 16
@@ -178,8 +177,7 @@ rule rrna:
 # so i devided it 
 rule star:
   input:
-    fq1=rules.cutAdapter.output.fq1,
-    fq2=rules.cutAdapter.output.fq2,
+    unpack(cut_if_adapter)
   output:
     coordsortBam=OUT+"/bam/star/{sample}.Aligned.sortedByCoord.out.bam",
     transcriptomeBam=OUT+"/bam/star/{sample}.Aligned.toTranscriptome.out.bam",
