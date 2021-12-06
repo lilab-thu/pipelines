@@ -191,13 +191,13 @@ rule star:
   shell: """
   /conglilab/shared/applications/staraln/STAR-2.5.3a/bin/Linux_x86_64_static/STAR \
   --genomeDir {params.STAR_INDEX} \
+  --genomeLoad LoadAndKeep \
   --runThreadN {threads} \
   --readFilesIn \
   {input.fq1} \
   {input.fq2} \
   --readFilesCommand gunzip -c \
   --outSAMtype BAM SortedByCoordinate \
-  --twopassMode Basic \
   --limitBAMsortRAM 30000000000 \
   --outFileNamePrefix {params.prefix}  \
   --outSAMstrandField intronMotif \
