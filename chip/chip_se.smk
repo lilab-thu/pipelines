@@ -111,7 +111,7 @@ def cut_if_adapter(wildcards):
         }
     else:
         return {
-            "fq1": OUT + "/fastq/{sample}_R1.trimmed.fastq.gz",
+            "fq1": OUT + "/fastq/{sample}.trimmed.fastq.gz",
         }
 
 
