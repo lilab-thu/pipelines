@@ -7,7 +7,7 @@ import random
 import subprocess
 
 if GENOME_VERSION == "hg38":
-    GENOME_INDEX = "/conglilab/shared/genomics/pipeline_atac/hg38/bwa-mem2_index/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta"
+    GENOME_INDEX = "/conglilab/shared/genomics/pipeline_atac/hg38/bwameth_index/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta"
     GENOME_BLACKLIST = "/conglilab/shared/genomics/pipeline_atac/hg38/hg38.blacklist.withJDB.sorted.bed"
     CHROM_FILTER_1 = "v"
     CHROM_FILTER_2 = "V"
@@ -16,7 +16,7 @@ if GENOME_VERSION == "hg38":
     CHROMSIZES = "/conglilab/shared/genomics/pipeline_atac/hg38/hg38.chrom.sizes"
     MACS2_GENOME_SIZE = "hs"
 elif GENOME_VERSION == "mm10":
-    GENOME_INDEX = "/conglilab/shared/genomics/pipeline_atac/mm10/bwa-mem2_index/mm10_no_alt_analysis_set_ENCODE.fasta"
+    GENOME_INDEX = "/conglilab/shared/genomics/pipeline_atac/mm10/bwameth_index/mm10_no_alt_analysis_set_ENCODE.fasta"
     GENOME_BLACKLIST = "/conglilab/shared/genomics/pipeline_atac/mm10/mm10.blacklist.withJDB.sorted.bed"
     CHROM_FILTER_1 = "random"
     CHROM_FILTER_2 = "chrUn"
