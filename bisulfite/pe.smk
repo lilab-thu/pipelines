@@ -96,9 +96,7 @@ rule filter_1:
         # (use MAPQ instead of processing uniquely mapped reads;  uniquely mapping rarely mentioned today )
         # flag: filter 1804=1024+512+256+8+4 ; get 2
         # MAPQ > 30
-        # sort by name 
-        samtools view -@ {threads} -F 1804 -f 2 -q 30 -u {input.bam} |\
-        samtools sort -@ {threads} -o {output.bam} -n /dev/stdin
+        samtools view -@ {threads} -F 1804 -f 2 -q 30 -u {input.bam} -o {output.bam}
         samtools index -@ {threads} {output.bam}
         """
 
@@ -108,14 +106,17 @@ rule fixmate:
         bam=rules.filter_1.output.bam,
     output:
         bam=temp(OUT + "/bam/intermediate/{sample}.fixmate.bam"),
-        bai=temp(OUT + "/bam/intermediate/{sample}.fixmate.bam.bai"),
     threads: 8
     shell:
         """
-        samtools fixmate -r -@ {threads} {input.bam} |\
-        samtools view -F 1804 -f 2 -@ {threads} -u /dev/stdin |\
-        samtools sort -@ {threads} -o {output.bam} /dev/stdin 
-        samtools index -@ {threads} {output.bam}
+        # sort by name 
+        samtools sort -@ {threads} -n {input.bam} -o {output.bam}.name_sort.bam
+
+        samtools fixmate -m -r -@ {threads} {output.bam}.name_sort.bam {output.bam}.fixmate.bam
+
+        samtools sort -@ {threads} -o {output.bam} {output.bam}.fixmate.bam
+
+        rm {output.bam}.name_sort.bam {output.bam}.fixmate.bam
         """
 
 
