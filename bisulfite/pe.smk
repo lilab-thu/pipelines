@@ -35,7 +35,7 @@ rule all:
         expand(OUT + "/bam/{sample}.bam.bai", sample=SAMPLE_LIST),
         expand(OUT + "/bw/binned/genome/{sample}.rpkm.bw", sample=SAMPLE_LIST),
         expand(OUT + "/bw/unbinned/meth/{sample}.bdg", sample=SAMPLE_LIST),
-        expand(OUT + "/bw/unbinned/meth/{sample}.bw", sample=SAMPLE_LIST),
+        expand(OUT + "/bw/unbinned/meth/{sample}.methylated.bw", sample=SAMPLE_LIST),
         expand(OUT + "/qc/fragsize/{sample}.fragsize.pdf", sample=SAMPLE_LIST),
         expand(OUT + "/qc/fragsize/{sample}.fragsize.txt", sample=SAMPLE_LIST),
         expand(OUT + "/qc/libComplexity/{sample}.pbc_qc.csv", sample=SAMPLE_LIST),
@@ -190,10 +190,11 @@ rule meth_bw:
         bai=rules.mask_blacklist_region.output.bai,
     output:
         bdg=OUT + "/bw/unbinned/meth/{sample}.bdg",
-        bw=OUT + "/bw/unbinned/meth/{sample}.bw",
+        bw=OUT + "/bw/unbinned/meth/{sample}.methylated.bw",
     params:
         GENOME_INDEX=GENOME_INDEX,
         CHROMSIZES=CHROMSIZES,
+        bdg_prefix = OUT + "/bw/unbinned/meth/{sample}",
     threads: 8
     shell:
         """
@@ -201,10 +202,14 @@ rule meth_bw:
         extract \
         {params.GENOME_INDEX} \
         {input.bam} \
-        > {output.bdg}
+        -o {params.bdg_prefix}
+
+        sort -k1,1 -k2,2n {params.bdg_prefix}_CpG.bedGraph | grep -v track > {output.bdg}
+        cut -f 1,2,3,4 {output.bdg} > {output.bdg}.methylated
+        cut -f 1,2,3,5 {output.bdg} > {output.bdg}.unmethylated
 
         bedGraphToBigWig \
-        {output.bdg} \
+        {output.bdg}.methylated \
         {params.CHROMSIZES} \
         {output.bw}
         """
