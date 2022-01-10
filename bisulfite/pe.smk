@@ -70,14 +70,15 @@ rule align:
     output:
         bam=OUT + "/bam/intermediate/{sample}.raw.bam",
         bai=OUT + "/bam/intermediate/{sample}.raw.bam.bai",
-    threads: 16
+    threads: 32
     shell:
         """
         bwameth.py \
         --threads {threads} \
         --reference {GENOME_INDEX} \
-        --input {input.fq1} {input.fq2} |\
-        samtools sort -@ {threads} -o {output.bam} -
+        {input.fq1} {input.fq2} |\
+        samtools sort -@ 4 -m 1G -o {output.bam}
+
         samtools index -@ {threads} {output.bam}
         """
 
