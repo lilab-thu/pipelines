@@ -133,7 +133,7 @@ rule dedup:
     shell:
         """
         samtools markdup -@ {threads} -r {input.bam} {output.mark_bam} 
-        asmtools index -@ {threads} {output.mark_bam}
+        samtools index -@ {threads} {output.mark_bam}
 
         samtools view -u -F 1804 -f 2 -@4 {output.mark_bam} |\
         samtools sort -@ {threads} -o {output.bam} /dev/stdin
