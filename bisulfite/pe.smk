@@ -197,7 +197,7 @@ rule meth_bw:
     threads: 8
     shell:
         """
-        methylDackel \
+        MethylDackel \
         extract \
         {params.GENOME_INDEX} \
         {input.bam} \
