@@ -46,39 +46,19 @@ rule all:
         fastqc=expand("{OUT}/qc/fastqc/{sample}", OUT=OUT, sample=sampleList),
 
 
-rule detectAdapter:
+checkpoint detectAdapter:
     input:
         fq=IN + "/{sample}.fastq.gz",
     output:
         adapter=OUT + "/qc/adapter/{sample}.adapter.log",
-    shell:
-        """
-        python3 \
-        /conglilab/shared/pipelines/atacseq_pipelines/atac_dnase_pipelines/utils/detect_adapter.py \
-        {input.fq} \
-        > {output.adapter}
-        """
-
-
-checkpoint detectAdapter:
-    input:
-        fq1=IN + "/{sample}_R1.fastq.gz",
-        fq2=IN + "/{sample}_R2.fastq.gz",
-    output:
-        adapter1=OUT + "/qc/adapter/{sample}_R1.adapter.log",
-        adapter2=OUT + "/qc/adapter/{sample}_R2.adapter.log",
     conda:
         "envs/conda.yaml"
     shell:
         """
         python3 \
         /conglilab/shared/pipelines/atacseq_pipelines/atac_dnase_pipelines/utils/detect_adapter.py \
-        {input.fq1} \
-        > {output.adapter1}
-        python3 \
-        /conglilab/shared/pipelines/atacseq_pipelines/atac_dnase_pipelines/utils/detect_adapter.py \
-        {input.fq2} \
-        > {output.adapter2}
+        {input.fq} \
+        > {output.adapter}
         """
 
 
@@ -303,7 +283,8 @@ rule summaryConcat:
 
             sampleName = re.search(
                 "(?<=\/rsem\/).*(?=.genes.results)", geneResultFile
-        ).group(0)
+            ).group(0)
+
 
         fileHandle.write(
             ",".join(
@@ -324,7 +305,7 @@ rule summaryConcat:
                 ]
             )
         + "\n"
-            )
+        )
 
 
         # fileHandle.write(f"{sample:wildcards.sample},{reads:Reads},{unique:Unique},{unique_r:Unique_r},{multiple:Multiple},{multiple_r:Multiple_r},{rRNA:rRNA},{rRNA_r:rRNA_r},{genes_1:genes_1},{genes_2:genes_2}")
