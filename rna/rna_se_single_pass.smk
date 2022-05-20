@@ -47,6 +47,26 @@ rule detectAdapter:
     > {output.adapter}
 """
 
+checkpoint detectAdapter:
+  input:
+    fq1=IN + "/{sample}_R1.fastq.gz",
+    fq2=IN + "/{sample}_R2.fastq.gz",
+  output:
+    adapter1=OUT + "/qc/adapter/{sample}_R1.adapter.log",
+    adapter2=OUT + "/qc/adapter/{sample}_R2.adapter.log",
+  conda:
+    "envs/conda.yaml"
+  shell:
+    """
+    python3 \
+    /conglilab/shared/pipelines/atacseq_pipelines/atac_dnase_pipelines/utils/detect_adapter.py \
+    {input.fq1} \
+    > {output.adapter1}
+    python3 \
+    /conglilab/shared/pipelines/atacseq_pipelines/atac_dnase_pipelines/utils/detect_adapter.py \
+    {input.fq2} \
+    > {output.adapter2}
+    """
 def cut_if_adapter(wildcards):
   r_adap = checkpoints.detectAdapter.get(sample=wildcards.sample).output[0]
   r_adap = (
