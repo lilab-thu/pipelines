@@ -283,27 +283,27 @@ rule summaryConcat:
 
             sampleName = re.search(
                 "(?<=\/rsem\/).*(?=.genes.results)", geneResultFile
-        ).group(0)
+            ).group(0)
 
-        fileHandle.write(
-            ",".join(
-                [
-                    str(x)
-                    for x in [
-                        sampleName,
-                        Reads,
-                        Unique,
-                        Unique_r,
-                        Multiple,
-                        Multiple_r,
-                        rRNA,
-                        rRNA_r,
-                        genes_1,
-                        genes_2,
+            fileHandle.write(
+                ",".join(
+                    [
+                        str(x)
+                        for x in [
+                            sampleName,
+                            Reads,
+                            Unique,
+                            Unique_r,
+                            Multiple,
+                            Multiple_r,
+                            rRNA,
+                            rRNA_r,
+                            genes_1,
+                            genes_2,
+                        ]
                     ]
-                ]
-            )
-        + "\n"
+                )
+                + "\n"
             )
 
 
